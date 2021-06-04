@@ -1,0 +1,247 @@
+{% extends "layout.html"%}
+
+{% block main %}
+
+  <div class="main h-50 m-5">
+    <div class="container-fluid d-flex row justify-content-around">
+      <div class="jumbotron d-flex flex-column bg-secondary p-3 m-1 col-xl-3 col-md-4  col-sm-5">
+        <div class="ml-3">
+          <p class="text-light m-3 h4">Titles:{{numOfTitles}}</p>
+
+        </div>
+      </div>
+
+      <div class="jumbotron d-flex flex-column bg-secondary p-3 m-1 col-xl-3 col-md-4  col-sm-5">
+        <p class="text-light m-3 h5">Free space: {{driveStats["free"]}} GB</p>
+        </div>
+      </div>
+
+
+      </div>
+
+
+    <div id="ongoing" style="display:none">
+      <nav id="ongoing-episodes">
+        <div class="bg-dark d-flex justify-content-between" >
+          <p class="m-3 text-light h4" >Popular now:</p>
+      </nav>
+        <div id="ongoingList" class="container-fluid d-flex m-2" style="overflow-x:auto">
+          <div class="d-flex">
+          <p>Loading</p>
+          </div>
+        </div>
+    </div>
+
+
+
+    <div id="new" style="display:none">
+      <nav id="new-episodes">
+        <div class="bg-dark d-flex justify-content-between" >
+          <p class="m-3 text-light h4" >New releases:</p>
+      </nav>
+        <div id="newList" class="container-fluid d-flex m-2" style="overflow-x:auto">
+          <div class="d-flex">
+          <p>Loading</p>
+          </div>
+        </div>
+    </div>
+
+
+  <nav id="next-episodes">
+    <div class="bg-dark d-flex justify-content-between" >
+      <p class="m-3 text-light h4" >Watch list:</p>
+  </nav>
+  <div>
+    <div id="watchingList" class="container-fluid d-flex m-2" style="overflow-x:auto">
+
+    </div>
+
+{% endblock %}
+
+{% block list %}
+<nav class="" >
+  <div class="bg-dark d-flex justify-content-between align-items-center" >
+    <p class="text-light m-3 h4">Library</p>
+    <div class="d-flex">
+      <input type="text" placeholder="Search" class="form-control m-3" id="search" onkeyup="search()" name="" value="">
+    </div>
+
+    <a href="{{url_for('search')}}" class="m-3 h5 text-light">Find more</a>
+  </nav>
+  <div id="grid-view" style="background-color:#1a1b1c" class="container-fluid justify-content-center w-100"  >
+    <div class="row  justify-content-center">
+      {% for folder in folders %}
+        <div class="title card bg-dark" title="{{folder}}" style="width: 15rem; padding:10px; margin:10px" >
+          <img class="card-img-top" src="/static/thumbnails/{{folder}}.thumbnail" alt="{{folder}}" onerror="this.onerror=null;this.src='/static/thumbnails/alt.thumbnail';"  > </img>
+          <div class="card-body">
+            <h5 class="card-title text-light">
+              {% if folder|length<40 %}
+              {{folder.capitalize() | replace("-", " ") }}
+              {%else%}
+              {{folder.capitalize()[:7]  | replace("-", " ")}}...{{folder.capitalize()[folder|length-20:] | replace("-", " ")}}
+              {%endif%}
+            </h5>
+            </div>
+          {% if status[folder]=="watchable" %}
+          <button type="button" class="btn btn-success stretched-link" data-toggle="modal" data-target="#modal-{{folder}}">
+            Info
+          </button>
+          {% elif status[folder]=="downloading" %}
+            <button type="button" class="btn btn-warning stretched-link" data-toggle="modal" data-target="#modal-{{folder}}">
+              Info
+            </button>
+          {% else %}
+          <button type="button" class="btn btn-secondary stretched-link" data-toggle="modal" data-target="#modal-{{folder}}">
+            Info
+          </button>
+
+          {% endif %}
+          <!-- Modal -->
+          <div class="modal fade" id="modal-{{folder}}" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content bg-dark">
+                <div class="modal-header">
+                  <h5 class="modal-title text-light">{{folder.capitalize() | replace("-", " ")}}</h5>
+                  <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <div class="modal-body d-flex flex-column">
+                  {% if status[folder]=="watchable" %}
+                    <p class="text-light h5 col-12">Episodes:{{numOfEpisodes[folder]}}</p>
+                    <br>
+                    <a class="btn btn-success col-12" href="/series/{{folder}}">Watch</a>
+                    <br>
+
+                    <form style="display: inline;" action="/update" method="post">
+                      <button type="submit" name="name" value="{{folder}}" class="btn btn-secondary col-12">Update</button>
+                    </form>
+
+
+                    <br>
+                    <button type="button" class="btn btn-success" onclick=addToWatchList("{{folder}}") name="button">Add to watch list</button>
+                    <br>
+                    {#
+                      <h4 class="text-light">Upload manualy:</h4>
+                      <form method=post class="from-control d-flex flex-column" action="/upload/" enctype=multipart/form-data>
+                        <div class="form-group">
+                          <input type=text name=series value="{{folder}}" class="d-none" readonly>
+                          <select class="form-control bg-secondary text-light" name=episode>
+                            {% for episode in range(numOfEpisodes[folder]+1) %}
+                              <option>{{episode+1}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+
+                        <div class="custom-file">
+                          <input type="file" class="custom-file-input" name="file">
+                          <label class="custom-file-label" >Choose file</label>
+                        </div>
+                        <br>
+                        <div class="form-group">
+                          <input class="form-control btn btn-success" type=submit value=Upload>
+                        </div>
+                      </form>
+                    #}
+                  {% elif status[folder]=="downloading" %}
+                      <p class="text-light h5 col-12">Episodes:{{numOfEpisodes[folder]}}</p>
+                      <br>
+                      <a class="btn btn-success col-12" href="/series/{{folder}}">Watch</a>
+                      <br>
+                      <button type="button" class="btn btn-success" onclick=addToWatchList("{{folder}}") name="button">Add to watch list</button>
+                      <br>
+                      <p class="btn btn-warning text-light col-12">Downloading</p>
+                      <br>
+                  {% elif status[folder]=="archived" %}
+                      <a class="btn btn-secondary col-12 " href="/unpack/{{folder}}">Unpack</a>
+                  {% elif status[folder]=="unpacking" %}
+                      <button class="btn btn-secondary col-12">Unpacking...</button>
+                  {% elif status[folder]=="packing" %}
+                      <button class="btn btn-secondary col-12">Packing...</button>
+                  {% endif %}
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="" style="height:50vh"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+  function search(){
+    var searchTerm=document.getElementById("search").value
+    document.getElementById("search").scrollIntoView();
+    var cards=document.getElementsByClassName("title card bg-dark")
+    for(var i=0;i<cards.length;i++){
+      if(cards[i].title.includes(searchTerm) || cards[i].title.replaceAll("-"," ").includes(searchTerm) || cards[i].title.replaceAll("-","").includes(searchTerm)){
+        cards[i].style.display = "inherit"
+      }
+      else{
+        cards[i].style.display = "none"
+      }
+    }
+
+  }
+  </script>
+  <script type="text/javascript"
+          src="{{url_for('static',filename='js/cookieHandler.js')}}">
+  </script>
+  <script type="text/javascript">
+    setWatchingTitles();
+  </script>
+
+  <script type="text/javascript">
+
+
+
+    function ongoing(){
+      $.ajax({
+        url: "/ongoing",
+        type: "GET",
+        success: function(result){
+          $("#ongoingList").html(result);
+          document.getElementById("ongoing").style.display="inherit";
+
+        }
+      });
+    }
+    function newReleases(){
+      $.ajax({
+        url: "/new",
+        type: "GET",
+        success: function(result){
+          $("#newList").html(result);
+          document.getElementById("new").style.display="inherit";
+
+        }
+      });
+    }
+    ongoing();
+    newReleases();
+    setInterval(function(){
+        ongoing();
+        newReleases();
+      },840000
+    );
+
+  </script>
+
+
+
+
+{% endblock %}
+
+{% block styleend %}
+  <style media="screen">
+  .card-img-top{
+    width: auto;
+    height: 20rem;
+  }
+
+  </style>
+{% endblock %}

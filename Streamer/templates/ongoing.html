@@ -1,0 +1,66 @@
+{% if ongoing %}
+
+  {% for title in ongoing %}
+
+  <div class="watchingTitle card bg-dark col-auto" style="width: 15rem; padding: 10px; margin: 10px 20px 10px 10px;">
+    <div class="d-flex flex-row-reverse">
+    </div>
+    <img class="card-img-top" src="/static/thumbnails/{{title["title"]}}.thumbnail">
+    <div class="card-body">
+      <h5 class="card-title text-light">
+        {% if title["title"]|length<40 %}
+          {{title["title"].capitalize() | replace("-", " ") }}
+        {%else%}
+          {{title["title"].capitalize()[:7]  | replace("-", " ")}}...{{title["title"].capitalize()[title["title"]|length-20:] | replace("-", " ")}}
+        {% endif %}
+
+      </h5>
+
+    </div>
+    {% if titleDays %}
+      {% if titleDays[title["title"]] %}
+          <b class="text-light text-center m-1">Next episode : {{ titleDays[title["title"]] }}</b>
+      {% endif %}
+    {% endif %}
+    <button type="button" class="btn btn-success stretched-link" data-toggle="modal" data-target="#modal-ongoing-{{title["title"]}}">
+      Info
+    </button>
+    <div class="modal fade" id="modal-ongoing-{{title["title"]}}" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+          <div class="modal-header">
+            <h5 class="modal-title text-light">{{title["title"].capitalize() | replace("-", " ")}}</h5>
+            <button type="button" class="close" data-dismiss="modal">×</button>
+          </div>
+          <div class="modal-body d-flex flex-column">
+              <p class="text-light h5 col-12">Episodes:{{title["latest"]}}</p>
+              <br>
+
+              <a class="btn btn-success col-12" href="/series/{{title["title"]}}/{{title["latest"]}}">Watch</a>
+              <br>
+
+              <form style="display: inline;" action="/update" method="post">
+                <button type="submit" name="name" value="{{title["title"]}}" class="btn btn-secondary col-12">Download</button>
+              </form>
+
+              <br>
+
+              <button type="button" class="btn btn-success" onclick=addToWatchList("{{title["title"]}}") name="button">Add to watch list</button>
+              <br>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  {% endfor %}
+
+{% else %}
+
+{% endif %}

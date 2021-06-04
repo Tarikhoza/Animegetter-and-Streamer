@@ -1,0 +1,22 @@
+{% extends "layout.html"%}
+
+{% block title %}
+
+<title>{% if name|length<20 %}
+    {{name.capitalize()}}
+  {%else%}
+   {{name.capitalize()[:10]}}...{{name.capitalize()[name|length-10:]}}
+  {%endif%}
+</title>
+{% endblock %}
+{% block list %}
+
+<div class="m-3">
+    <h3 class="text-secondary ">{{name.capitalize() | replace("-", " ")}}</h3>
+      <div class="container-fluid row">
+        {% for episode in range(1,numOfEpisodes+1) %}
+          <a class="bg-secondary m-2 col-1 text-dark h2 text-center rounded" href="/series/{{name}}/{{episode}}">{{episode}}</a>
+        {% endfor %}
+      </div>
+    </div>
+{% endblock %}

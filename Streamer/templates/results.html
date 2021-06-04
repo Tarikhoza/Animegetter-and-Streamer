@@ -1,0 +1,19 @@
+{% for i in urlList %}
+    <tr>
+      <th scope="row" ><p class="">{{loop.index}}</p></th>
+
+      <td class="w-50"><p >{{names[loop.index-1]|capitalize()|replace("-", " ") }}</p></td>
+      <td class="d-flex">
+        <form class="mr-2" action="/download" method="post"  target="_blank">
+          <input class="btn btn-secondary" type="submit" name="submit" value="Download">
+          <input class="d-none" name="url" value="{{i}}"readonly>
+        </form>
+        <form class="" action="/watch/live/" method="post">
+          <input class="btn btn-secondary" type="submit" name="submit" value="Watch live">
+          <input class="d-none" name="url" value="{{i}}"readonly>
+          <input class="d-none" name="name" value="{{names[loop.index-1]}}"readonly>
+        </form>
+      </td>
+
+    </tr>
+{% endfor %}

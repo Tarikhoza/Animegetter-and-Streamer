@@ -1,0 +1,48 @@
+{% extends "layout.html"%}
+
+{% block title %}
+  <title id="title">Streamer search</title>
+{% endblock %}
+{% block main  %}
+  <div class="m-3">
+    <input name="searchterm" id="input" class="form-control form-input w-25 bg-dark text-light" onkeyup="search()">
+  </div>
+  <br>
+      <table class="table table-stripped table-dark">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody class="results">
+        </tbody>
+      </table>
+{% endblock %}
+
+{% block scripts %}
+
+  <script type="text/javascript">
+    function search(){
+      var url="/search/";
+      var searchTerm=document.getElementById("input").value;
+      if(searchTerm!=""){
+        $.ajax({
+          url: url+searchTerm,
+          type: "GET",
+          success: function(result){
+            $(".results").html(result);
+          }
+        });
+      }
+    }
+  </script>
+
+  {% if close %}
+    <script>
+    window.close()
+    </script>
+  {% endif %}
+
+{% endblock %}
