@@ -121,10 +121,42 @@ def getDownloadUrl(episodeUrl,ignoreURLs=[]):
     return downloadUrl
 
 
+
 def downloadUrl(url, folderName, fileName):
-    print("Downloading {url}".format(url=url))
+    response = requests.get(url,headers=headers)
+
+# print response
+    print(response)
+
+# print headers of response
+    print(response.headers,response.history[0].headers,sep="\n\n")
+    newUrl=response.history[0].headers["Location"]
+    newHost=newUrl.split("/")[0]
+
+    newHeaders={
+       "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        "Accept-EncodingS": "gzip, deflate, br",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Connetion": "keep-alive",
+        "Host": newHost,
+        "If-Range": "618ab8c3-310d402",
+        "Range": "bytes=3505569-3505569",
+        "Referer": "https://gogoplay1.com/",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "cross-site",
+        "Sec-Fetch-User": "?1",
+        "Sec-GPC": "1",
+        "Upgrade-Insecure-Requests": "1",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
+    }
+
+
+
+
+    print("Downloading {url}".format(url=newUrl))
     try:
-        request_=urllib.request.Request(url,None,headers)
+        request_=urllib.request.Request(newUrl,None,newHeaders)
         response = urllib.request.urlopen(request_)
         data = response.read()
         f = open( os.path.join(os.getcwd(),folderName, fileName),'wb')
@@ -138,8 +170,8 @@ def downloadUrl(url, folderName, fileName):
     except Exception as e:
         messages.append("Error:" + str(e))
         print(f"Error while downloading {url}", e, "\n")
-        list(set(notWorkingURLs.append(url)))
-        print(f"Added {url} to not working URLs")
+        #list(set(notWorkingURLs.append(url)))
+        #print(f"Added {url} to not working URLs")
 
 
 
